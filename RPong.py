@@ -67,9 +67,11 @@ class Ball(rgr.graphic):
 			else:
 				self.dr=2
 	def bouncepads(self,pads):
+		touching=False
 		if self.posx<=1 or self.posx>=18:
 			for pad in pads:
 				if self.posy-pad.posy in range(len(pad.content)):
+					self.content=[["\033[35m"+shds.a+"\033[0m"]]
 					if self.dr==2 and pad.fp:
 						self.dr=1
 					elif self.dr==3 and pad.fp:
@@ -78,6 +80,21 @@ class Ball(rgr.graphic):
 						self.dr=3
 					elif self.dr==1 and not pad.fp:
 						self.dr=2
+					else:
+						if self.posx<=1:
+							self.posx=2
+						elif self.posx>=19:
+							self.posx=18
+					touching=True
+		if not touching:
+			self.content=[["\033[31m"+shds.a+"\033[0m"]]
+	def checkerrs(self):
+		if not self.dr in [0,1,2,3]:
+			raise ValueError("Direction Variable got an impossible Value!")
+		if self.posx<0:
+			raise ValueError("Negative XPosition Value is invalid.")
+		if self.posy<0:
+			raise ValueError("Negative YPosition Value is invalid.")
 class NewGame(Exception):
 	pass
 class EndGame(Exception):
@@ -115,8 +132,8 @@ def main(stdscr):
 	screen.init(20,15,shds.d)
 	score=[0,0]
 	stdscr.nodelay(1)
-	pada=Pad(True)
-	padb=Pad(False)
+	pada=Pad(fp=True)
+	padb=Pad(fp=False)
 	ball=Ball()
 	spdlimiter=SpeedLimiter(5,0.005)
 	while not stdscr.getch()==10:
@@ -135,9 +152,10 @@ def main(stdscr):
 			globkeyfunc(key)
 			pada.keyfunc(key)
 			padb.keyfunc(key)
+		ball.checkerrs()
 		ball.bouncepads((pada,padb))
-		ball.move()
 		status=ball.bouncewalls()
+		ball.move()
 		if type(status)==tuple and status[0]=="win":
 			win(fp=status[1])
 			del ball
