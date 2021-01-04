@@ -1,8 +1,8 @@
 import os, sys, rgraphics as rgr, curses,time
 __author__ = "Riedler"
 __version__ = "2019.03.18-17.24"
-shds=rgr.shades()
-class Pad(rgr.graphic):
+shds=rgr.Shades()
+class Pad(rgr.Graphic):
 	def __init__(self,fp):
 		rgr.graphic.__init__(self)
 		self.up=True
@@ -31,7 +31,7 @@ class Pad(rgr.graphic):
 		elif key=="KEY_DOWN" and self.fp==False:
 			self.up=False
 			self.move()
-class Ball(rgr.graphic):
+class Ball(rgr.Graphic):
 	def __init__(self):
 		rgr.graphic.__init__(self)
 		self.dr=1
@@ -125,10 +125,10 @@ def globkeyfunc(key):
 		raise EndGame("")
 def main(stdscr):
 	global score
-	screen=rgr.graphic()
+	screen=rgr.Graphic()
 	screen.init(20,15,shds.d)
 	score=[0,0]
-	stdscr.nodelay(1)
+	stdscr.nodelay(True)
 	pada=Pad(fp=True)
 	padb=Pad(fp=False)
 	ball=Ball()
@@ -140,33 +140,33 @@ def main(stdscr):
 		screen.display()
 		print("\033[16;0H"+str(score[0])+"\033[16;14HPress ENTER to Start\033[16;40H"+str(score[1]))
 	print("\033[16;14H                    ")
-#Here starts the true Main Loop				#
-	while True:								#
-		for x in range(100):				#
-			try:							#
-				key=(stdscr.getkey())		#
-			except curses.error:			#
-				key=None					#
+#Here starts the true Main Loop						#
+	while True:							#
+		for x in range(100):					#
+			try:						#
+				key=(stdscr.getkey())			#
+			except curses.error:				#
+				key=None				#
 			globkeyfunc(key)				#
 			pada.keyfunc(key)				#
 			padb.keyfunc(key)				#
 		ball.checkerrs()					#
-		ball.bouncepads((pada,padb))			#
-		ball.move()							#
-		status=ball.bouncewalls()			#
-		if type(status)==tuple and status[0]=="win":
+		ball.bouncepads((pada,padb))				#
+		ball.move()						#
+		status=ball.bouncewalls()				#
+		if type(status)==tuple and status[0]=="win":		#
 			win(fp=status[1])				#
-			del ball						#
-			ball=Ball()						#
+			del ball					#
+			ball=Ball()					#
 			spdlimiter.spd=5				#
 		screen.draw(pada)					#
 		screen.draw(padb)					#	
 		screen.draw(ball)					#
 		screen.display()					#
 		spdlimiter.sleep()					#
-		spddisp=str(round(spdlimiter.spd*100))
+		spddisp=str(round(spdlimiter.spd*100))			#
 		if spdlimiter.slow:					#
-			spddisp="\033[31m"+spddisp+"\033[0m"
+			spddisp="\033[31m"+spddisp+"\033[0m"		#
 		print("\033[16;0H"+str(score[0])+"\033[16;14HSpeed:"+spddisp+"\033[16;"+str(41-len(str(score[1])))+"H"+str(score[1]))
 		spdlimiter.start()					#
 #And so it beg...
